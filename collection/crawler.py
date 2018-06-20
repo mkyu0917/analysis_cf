@@ -22,7 +22,7 @@ def crawling(
 
         except UnicodeDecodeError:
             result = receive.decode(encoding, 'replace') #replace 공백제거?
-
+        print('%s: success for request [%s]' %(datetime.now(),url))#로그를 남겨줌
         return result
 
     except Exception as e:
