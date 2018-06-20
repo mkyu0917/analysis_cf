@@ -1,12 +1,15 @@
 from itertools import count
 from bs4 import BeautifulSoup
-
+import pandas as pd
 import collection.crawler as cw
+from collection.data_dict import sido_dict, gungu_dict #data dict에서 불러옴
+
+RESULT_DIRECTORY = '__result__/crawling'
 
 def crawling_pelicana():
     results = []
     for page in count(start=1): #import
-        url='http://www.pelicana.co.kr/store/stroe_search.html?page=%d&branch_name=&gu=&si= '% (page)
+        url='http://www.pelicana.co.kr/store/stroe_search.html?page=%d&branch_name=&gu=&si='% (page)
         html=cw.crawling(url=url)
 
         bs=BeautifulSoup(html,'html.parser') # html 파서
@@ -27,9 +30,22 @@ def crawling_pelicana():
             sidogu = address.split()[:2] #슬라이싱으로 처음부터 2개만 뽑음
 
             results.append((name, address) + tuple(sidogu)) # 이름 주소 시도구를 넣은 튜플을 생성, 데이터 변경을 방지
-            print(results)
-    #sore
-    print(results)
+
+    #store
+    #print(results)
+    table = pd.DataFrame(results, columns=['name', 'address', 'sido','gungu'])
+
+    table['sido'] = table.sido.apply(lambda v: sido_dict.get(v,v)) # v에 sido값을 주고 그 값을 리턴값으로 변경, 다르지 아느면 그냥 내비둠
+    table['gungu'] = table.sido.apply(lambda v: gungu_dict.get(v, v))
+
+    table.to_csv(
+        '{0}/pelicana_table.csv'.format(RESULT_DIRECTORY),
+        encoding='utf-8',
+        mode='w',
+        index=True)
+
+
+
 
 if __name__=='__main__':
 
