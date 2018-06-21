@@ -1,5 +1,6 @@
 from datetime import datetime
 import sys
+import time
 import urllib
 from itertools import count
 from bs4 import BeautifulSoup
@@ -7,8 +8,9 @@ import pandas as pd
 import collection.crawler as cw
 from collection.data_dict import sido_dict, gungu_dict #data dict에서 불러옴
 import xml.etree.ElementTree as et #xml엘레먼트 트리
+from selenium import webdriver
 RESULT_DIRECTORY = '__result__/crawling'
-
+'''
 def crawling_pelicana():
     results = []
     for page in count(start=1): #import
@@ -126,10 +128,36 @@ def crawling_kyuchon():
 
             #results.append((name, address) + tuple(sidogu)) # 이름 주소 시도구를 넣은 튜플을 생성, 데이터 변경을 방지
 
+'''
 
+def crawling_goobne():
+    url = 'http://www.goobne.co.kr/store/search_store.jsp'
+    #첫 페이지로딩
+    wd = webdriver.Chrome('C:/Users/minkyu/Desktop/코딩프로그램/chromedriver.exe') #크롬드라이버 실행
+    wd.get(url) #url get방식으로 받아오기 (그냥 있는 그대로 받아오기 ) post는 수정
 
+    time.sleep(5) #5초 대기
 
+    for page in range(101,105): # range사이의 페이지를 이동
+        script = 'store.getList(%d)' % page #페이지 값이 변경되면서
+        wd.execute_script(script) #스크립트 실행
+        time.sleep(5) # 5초 대기
 
+        # 실행결과 HTML(rendering 된 html ) 가져오기
+        html = wd.page_source
+        #print(html)
+
+        #parsing with bs4 (필요한데이터 뽑아내기?)
+        bs = BeautifulSoup(html,'html.parser') #html파서 호출
+        tag_tbody=bs.find('tbody', attrs={'id': 'store_list'}) #tbody라는 태그의 속성이 id고 store_list인것
+        print(tag_tbody)
+        tags_tr=tag_tbody.findAll('tr') #tbody안에 모든 tr을 가져옴
+        print(tags_tr)
+        #마지막 검출
+        if tags_tr[0].get('class') is None: #받아오는 tags_tr[0]의 클래스가 None이면 멈춤
+            break
+
+        print(tag_tbody)
 
 
 
@@ -138,15 +166,17 @@ def crawling_kyuchon():
 
 if __name__=='__main__':
 
-    #pelicana
+    '''
     #crawling_pelicana() #처리, 저장 싹다함
-
+    
     #nene
     # cw.crawling(url='http://nenechicken.com/subpage/where_list.asp?target_step2=%s&proc_type=step1&target_step1=%s'
     #             % (urllib.parse.quote("전체"), urllib.parse.quote("전체")), #lib로 utf-8인코딩해서 넣어줘야 안전
     #             proc=proc_nene,
     #             store=store_nene)
-
-
-
-    crawling_kyuchon()
+    
+    
+    
+    #crawling_kyuchon()
+    '''
+    crawling_goobne()
