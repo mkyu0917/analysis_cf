@@ -9,6 +9,7 @@ import collection.crawler as cw
 from collection.data_dict import sido_dict, gungu_dict #data dict에서 불러옴
 import xml.etree.ElementTree as et #xml엘레먼트 트리
 from selenium import webdriver
+
 RESULT_DIRECTORY = '__result__/crawling'
 '''
 def crawling_pelicana():
@@ -131,6 +132,7 @@ def crawling_kyuchon():
 '''
 
 def crawling_goobne():
+    results=[]
     url = 'http://www.goobne.co.kr/store/search_store.jsp'
     #첫 페이지로딩
     wd = webdriver.Chrome('C:/Users/minkyu/Desktop/코딩프로그램/chromedriver.exe') #크롬드라이버 실행
@@ -138,8 +140,9 @@ def crawling_goobne():
 
     time.sleep(5) #5초 대기
 
-    for page in range(101,105): # range사이의 페이지를 이동
+    for page in count(start=1): # count(start=1) 처음부터 끝까지 돌음
         script = 'store.getList(%d)' % page #페이지 값이 변경되면서
+        print('%s : success for script execute [%s]' % (datetime.now(),script))
         wd.execute_script(script) #스크립트 실행
         time.sleep(5) # 5초 대기
 
@@ -150,17 +153,30 @@ def crawling_goobne():
         #parsing with bs4 (필요한데이터 뽑아내기?)
         bs = BeautifulSoup(html,'html.parser') #html파서 호출
         tag_tbody=bs.find('tbody', attrs={'id': 'store_list'}) #tbody라는 태그의 속성이 id고 store_list인것
-        print(tag_tbody)
         tags_tr=tag_tbody.findAll('tr') #tbody안에 모든 tr을 가져옴
-        print(tags_tr)
         #마지막 검출
         if tags_tr[0].get('class') is None: #받아오는 tags_tr[0]의 클래스가 None이면 멈춤
             break
 
-        print(tag_tbody)
+        for tag_tr in tags_tr:
+            strings = list(tag_tr.strings) #태그안에 있는 스트링 모두를 리스트로 가져오기4
+            name =strings[1]#지점을 담고
+            address= strings[6]#주소를 담고
+            sidogu = address.split(' ')[0:2]#주소 스플릿해서 시도를 담고
 
+            results.append((name,address)+tuple(sidogu))
+    print(results)
 
+    #store
+    table=pd.DataFrame(results, columns=['name', 'address','sido','gungu'])# 데이터프레임생성(테이블) ,
+    table['sido'] = table.sido.apply(lambda v: sido_dict.get(v,v))# sido라는 딕셔너리에 없으면 그냥 내값을 리턴해라
+    table['gungu'] = table.sido.apply(lambda v: gungu_dict.get(v, v))
 
+    table.to_csv(
+        '{0}/goobne_table.csv'.format(RESULT_DIRECTORY),  # csv로 디렉토리에 저장
+        encoding='utf-8',
+        mode='w',
+        index=True)
 
 
 
