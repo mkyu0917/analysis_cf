@@ -11,7 +11,7 @@ import xml.etree.ElementTree as et #xml엘레먼트 트리
 from selenium import webdriver
 
 RESULT_DIRECTORY = '__result__/crawling'
-'''
+
 def crawling_pelicana():
     results = []
     for page in count(start=1): #import
@@ -84,7 +84,7 @@ def store_nene(data): #데이터 저장
 
 def crawling_kyuchon():
     results=[]
-    for sido1 in range(16,18):
+    for sido1 in range(1,18):
         for sido2 in count(start=1):
                 url = 'http://www.kyochon.com/shop/domestic.asp?sido1=%d&sido2=%d&txtsearch=' % (sido1, sido2)
                 html = cw.crawling(url=url)
@@ -94,7 +94,7 @@ def crawling_kyuchon():
                 tag_div = bs.find('div', attrs={'class':'shopSchList'})  # 찾으려는 태그 속성이 ~~인거 찾으
                 # tag_ul = tag_div.find('ul')                                 # 순차적으로 들어가야됨 한번에 뽑으면 파싱이상
                 tag_lis = tag_div.findAll('li')
-                print(tag_lis)
+
 
 
                 for tag_li in tag_lis:
@@ -103,7 +103,7 @@ def crawling_kyuchon():
                     try:
                         name = strings[3]  # 리스트에서 지점이름인덱스
                         address = strings[5].strip()  # 리스트에서 주소인덱스
-                        print(address.split())#주소값을 분리해서 리스트에 넣음
+                        #print(address.split())#주소값을 분리해서 리스트에 넣음
                         sidogu = address.split()[:2]  # 슬라이싱으로 처음부터 2개만 뽑음
                         results.append((name, address) + tuple(sidogu))
                 #print(results)
@@ -129,7 +129,7 @@ def crawling_kyuchon():
 
             #results.append((name, address) + tuple(sidogu)) # 이름 주소 시도구를 넣은 튜플을 생성, 데이터 변경을 방지
 
-'''
+
 
 def crawling_goobne():
     results=[]
@@ -170,7 +170,7 @@ def crawling_goobne():
     #store
     table=pd.DataFrame(results, columns=['name', 'address','sido','gungu'])# 데이터프레임생성(테이블) ,
     table['sido'] = table.sido.apply(lambda v: sido_dict.get(v,v))# sido라는 딕셔너리에 없으면 그냥 내값을 리턴해라
-    table['gungu'] = table.sido.apply(lambda v: gungu_dict.get(v, v))
+    table['gungu'] = table.gungu.apply(lambda v: gungu_dict.get(v, v))
 
     table.to_csv(
         '{0}/goobne_table.csv'.format(RESULT_DIRECTORY),  # csv로 디렉토리에 저장
@@ -182,7 +182,7 @@ def crawling_goobne():
 
 if __name__=='__main__':
 
-    '''
+
     #crawling_pelicana() #처리, 저장 싹다함
     
     #nene
@@ -192,7 +192,8 @@ if __name__=='__main__':
     #             store=store_nene)
     
     
-    
+
     #crawling_kyuchon()
-    '''
+
+
     crawling_goobne()
