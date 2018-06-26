@@ -60,9 +60,8 @@ def showmap(blockedmap, targetdata, title, color):
     cb.set_label(targetdata)
     plt.tight_layout()
 
-#    plt.savefig('d:/temp/chicken_data/' + targetdata + '.png')
-
-   # plt.show()
+    #plt.savefig('d:/temp/chicken_data/' + targetdata + '.png')
+    plt.show()
 
 
 
@@ -137,11 +136,6 @@ nene=nene_table.apply(lambda r:str(r['sido'])+' '+str(r['gungu']),axis=1).value_
 
 
 
-
-
-
-
-
 chicken_table=pd.DataFrame({'pelicana':pelicana, 'nene': nene, 'kyochon': kyuchon,'goobne':goobne })
 chicken_table = chicken_table.drop(chicken_table[chicken_table.index == '00 18'].index) #쓸때없는 데이터 drop
 chicken_table = chicken_table.drop(chicken_table[chicken_table.index == '테스트 테스트구'].index)
@@ -160,8 +154,33 @@ data_draw_korea.index = data_draw_korea.apply(lambda r:r['광역시도']+' '+r['
 
 chicken_merge =pd.merge(data_draw_korea, chicken_table, how='outer', left_index=True, right_index=True) #치킨과 그림데이터를 outerjoin 왼쪽 오른쪽 다나오도록)
 
-#chicken_merge['total'] = chicken_table.sum(axis=1)
-#print(chicken_merge)
+chicken_merge=chicken_merge[ ~np.isnan(chicken_merge['면적'])]#면적값이 nan 아이면 냅두고 nan이면 삭제한다.
+
+
+chicken_merge['total'] = chicken_table.sum(axis=1)
+chicken_merge=chicken_merge[ ~np.isnan(chicken_merge['total'])]#면적값이 nan 아이면 냅두고 nan이면 삭제한다.
+
+print(chicken_merge)
+
+#인구 만명당 치킨집 수
+# chicken_merge['total 10k'] = chicken_merge['total'] / chicken_merge['인구수'] * 10000
+# showmap(chicken_merge,'total 10k','인구 만명당 치킨집 수', 'Purples')
+
+#인구 만명당 치킨집 수
+chicken_merge['area'] = chicken_merge['total'] / chicken_merge['면적']
+showmap(chicken_merge,'area','인구 만명당 치킨집 수', 'Reds')
+
+#4개 치킨 프랜차이즈 전국 매장 분포
+#showmap(chicken_merge, 'total', '4개 치킨 프랜차이즈 전국 매장분포','Greens')
 
 #페리카나 매장 분포
-#showmap(chicken_merge,'pelicana','페리카나 분포도','Blue')
+#showmap(chicken_merge,'pelicana','페리카나매장 분포도','Blues')
+
+#네네 매장 분포
+#showmap(chicken_merge,'nene','네네매장 분포도','Blues')
+
+#굽네 매장 분포
+#showmap(chicken_merge,'goobne','굽네매장 분포도','Blues')
+
+#교촌 매장 분포
+#showmap(chicken_merge,'kyochon','교촌매장 분포도','Blues')

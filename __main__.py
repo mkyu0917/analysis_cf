@@ -182,9 +182,8 @@ def crawling_goobne():
 
 if __name__=='__main__':
 
+     crawling_pelicana() #처리, 저장 싹다함
 
-    #crawling_pelicana() #처리, 저장 싹다함
-    
     #nene
     # cw.crawling(url='http://nenechicken.com/subpage/where_list.asp?target_step2=%s&proc_type=step1&target_step1=%s'
     #             % (urllib.parse.quote("전체"), urllib.parse.quote("전체")), #lib로 utf-8인코딩해서 넣어줘야 안전
@@ -196,4 +195,4 @@ if __name__=='__main__':
     #crawling_kyuchon()
 
 
-    crawling_goobne()
+    #crawling_goobne()
